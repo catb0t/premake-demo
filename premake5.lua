@@ -24,15 +24,20 @@ workspace "hello"
 
     libfiles = {}
 
+    -- all the subdirectories of src/lib (unix only)
     for dir in io.popen("find src/lib/ -maxdepth 1 -type d | tail -1"):lines()
     do
+      -- create src/lib/f/fcommon.c from f
       table.insert(libfiles, path.join(dir, path.getbasename(dir) .. "common.c"))
     end
 
+    -- src/lib/*/*common.c is what we care about
     files(libfiles)
 
+    -- libraries upon which this relies
     links { "m", "pthread", "fnv" }
 
+    -- where these files will go
     targetdir "bin/%{cfg.buildcfg}/lib"
 
   -- make the tests
@@ -44,6 +49,7 @@ workspace "hello"
     links { "criterion", "fnv" }
 
     targetdir  "bin/%{cfg.buildcfg}/test"
+    -- test_hello
     targetname "test_%{wks.name}"
 
   project "fnv"
@@ -57,11 +63,13 @@ workspace "hello"
   project "clobber"
     kind "makefile"
 
+    -- on windows, clean like this
     filter "system:not windows"
       cleancommands {
         "({RMDIR} bin obj *.make Makefile *.o -r 2>/dev/null; echo)"
       }
 
+    -- otherwise, clean like this
     filter "system:windows"
       cleancommands {
         "{DELETE} *.make Makefile *.o",
