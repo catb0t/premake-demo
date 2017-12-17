@@ -48,7 +48,7 @@ workspace "hello"
 
   project "fnv"
     kind "staticlib"
-    files { "deps/fnv-hash/*.c", "deps/fnv-hash/*.h" }
+    files { "deps/fnv-hash/hash_*.c" }
 
     links { "m" }
 
